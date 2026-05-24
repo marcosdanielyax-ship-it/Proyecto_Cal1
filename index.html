@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terminal de Derivación: Cálculo I</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/nerdamer.core.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/nerdamer@1.1.13/Algebra.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <style>
+    /* ====== VARIABLES CYBERPUNK ====== */
+    :root {
+      --neon-orange: #ff8c00;
+      --neon-cyan: #00e0ff;
+      --neon-purple: #ff00ff;
+      --neon-green: #39ff14;
+      --dark-glass: rgba(15, 15, 25, 0.85);
+      --input-bg: rgba(0, 0, 0, 0.6);
+      --text-main: #f5f5f5;
+    }
+
+    /* ====== FONDO Y CUERPO ====== */
+    body, html {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: "Orbitron", sans-serif;
+      background-image: url('https://i.pinimg.com/originals/1b/3c/58/1b3c5821c4ef798f196b30cc3eb46ac2.gif');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text-main);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,140,0,0.15), rgba(128,0,128,0.25));
+      backdrop-filter: blur(4px);
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 30px 15px;
+    }
+
+    /* ====== ENCABEZADO ====== */
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      animation: aparecer 2s ease-in-out;
+    }
+
+    h1 {
+      font-family: "Bungee Spice", sans-serif;
+      font-size: 36px;
+      margin: 0 0 10px 0;
+      letter-spacing: 2px;
+      text-shadow: 0 0 15px var(--neon-orange);
+    }
+
+    p.lead {
+      color: var(--neon-cyan);
+      font-size: 15px;
+      text-shadow: 0 0 5px var(--neon-cyan);
+    }
+
+    /* ====== PANELES ====== */
+    .panel {
+      background: var(--dark-glass);
+      border: 1px solid var(--neon-purple);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.2);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
+
+    .panel:hover {
+      box-shadow: 0 0 30px rgba(0, 224, 255, 0.3);
+      border-color: var(--neon-cyan);
+    }
+
+    .panel h2 {
+      font-size: 18px;
+      color: var(--neon-orange);
+      margin-top: 0;
+      margin-bottom: 20px;
+      text-shadow: 0 0 8px var(--neon-orange);
+      border-bottom: 1px solid rgba(255, 140, 0, 0.3);
+      padding-bottom: 10px;
+    }
+
+    /* ====== ENTRADA DE FUNCIÓN ====== */
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      color: var(--neon-cyan);
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid #444;
+      font-size: 20px;
+      background: var(--input-bg);
+      color: var(--neon-green);
+      font-family: monospace;
+      transition: all 0.3s ease;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    input[type="text"]::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: normal;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--neon-green);
+      box-shadow: 0 0 15px var(--neon-green);
+    }
+
+    /* ====== BOTONES ====== */
+    .actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: "Orbitron", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: transparent;
+      color: var(--neon-cyan);
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(0, 224, 255, 0.2) inset;
+    }
+
+    .btn-primary:hover {
+      background: var(--neon-cyan);
+      color: #000;
+      box-shadow: 0 0 20px var(--neon-cyan);
+    }
+
+    .btn-clear {
+      background: transparent;
+      color: var(--neon-orange);
+      border: 1px solid var(--neon-orange);
+    }
+
+    .btn-clear:hover {
+      background: var(--neon-orange);
+      color: #000;
+      box-shadow: 0 0 15px var(--neon-orange);
+    }
+    
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid #666;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    .btn-tool:hover { background: rgba(255, 255, 255, 0.3); border-color: #fff; }
+
+    /* ====== RESULTADOS ====== */
+    .result-box {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid var(--neon-purple);
+      text-align: center;
+      margin-bottom: 20px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .result-box h3 {
+      margin: 0 0 10px 0;
+      color: var(--neon-purple);
+      font-size: 16px;
+    }
+
+    .result-formula {
+      font-size: 24px;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255,255,255,0.3);
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    pre.output {
+      background: #000;
+      color: var(--neon-green);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      overflow: auto;
+      font-size: 13px;
+      font-family: monospace;
+      box-shadow: inset 0 0 10px rgba(0,255,0,0.1);
+    }
+
+    .error { color: #ff3333; text-shadow: 0 0 5px red; font-family: 'Orbitron', sans-serif; }
+
+    /* ====== SECCIÓN DE INFO ====== */
+    .info-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .info-box {
+      background: rgba(0,0,0,0.3);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px dashed var(--neon-cyan);
+    }
+
+    .info-box h3 { color: var(--neon-cyan); font-size: 15px; margin-top: 0; }
+    .info-box p, .info-box ul { font-size: 13px; line-height: 1.6; color: #ccc; }
+    .info-box ul { padding-left: 20px; }
+
+    @media (max-width: 768px) {
+      .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>NÚCLEO DE DERIVACIÓN</h1>
+      <p class="lead">Cálculo Diferencial Simbólico - Regla de la Cadena y Trigonométricas</p>
+    </header>
+
+    <section class="panel">
+      <h2>MÓDULO DE INSTRUCCIONES</h2>
+      <div class="info-grid">
+        <div class="info-box">
+          <h3>Sintaxis del Sistema</h3>
+          <ul>
+            <li><strong>Paréntesis Clave:</strong> Envuelve lo que derivas. En lugar de <code>sen 5x</code>, escribe <code>sen(5x)</code>.</li>
+            <li><strong>Potencias Trigonométricas:</strong> Para <code>sen³(x)</code>, usa: <code>(sen(x))^3</code>.</li>
+            <li><strong>Multiplicación:</strong> Usa el asterisco <code>*</code> para ser explícito, ej: <code>x*sen(3x)</code>.</li>
+            <li><strong>Raíces:</strong> Puedes usar <code>√</code> o <code>sqrt(x)</code>.</li>
+          </ul>
+        </div>
+        <div class="info-box">
+          <h3>Capacidades del Motor</h3>
+          <p>Este algoritmo utiliza derivación simbólica para resolver reglas complejas:</p>
+          <ul>
+            <li>Regla del cociente: <code>sen(5x) / cos(6x)</code></li>
+            <li>Regla de la cadena anidada: <code>sen(sen(2x))</code></li>
+            <li>Regla del producto: <code>x^3 * cos(x^3)</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>ENTRADA DE FUNCIÓN f(x)</h2>
+      
+      <div style="margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <button type="button" class="btn-tool" onclick="insertar('sen()')">sen()</button>
+        <button type="button" class="btn-tool" onclick="insertar('cos()')">cos()</button>
+        <button type="button" class="btn-tool" onclick="insertar('tan()')">tan()</button>
+        <button type="button" class="btn-tool" onclick="insertar('√()')">√()</button>
+        <button type="button" class="btn-tool" onclick="insertar('^')">^</button>
+      </div>
+
+      <div class="input-group">
+        <label>Expresión a derivar respecto a 'x':</label>
+        <input type="text" id="fx" placeholder="Ej: (2 + x*sen(3x))^10" autocomplete="off" />
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="btnCalc">Calcular Derivada</button>
+        <button class="btn-clear" id="btnClear">Purgar Datos</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>SALIDA DE DATOS f'(x)</h2>
+      
+      <div class="result-box">
+        <h3>Resultado Final Simbólico:</h3>
+        <div class="result-formula" id="resultadoFinal">
+          <span style="font-family: 'Orbitron', sans-serif; font-size: 16px;">[ Esperando ecuación... ]</span>
+        </div>
+      </div>
+
+      <h3 style="margin-top:25px; font-size:14px; color: var(--neon-cyan);">REGISTRO DEL SISTEMA (Consola de Procesamiento)</h3>
+      <pre class="output" id="consoleOut">> Sistema en línea. Esperando directrices...</pre>
+    </section>
+
+  </div>
+
+  <script>
+    const inputFx = document.getElementById('fx');
+    const btnCalc = document.getElementById('btnCalc');
+    const btnClear = document.getElementById('btnClear');
+    const outResult = document.getElementById('resultadoFinal');
+    const consoleOut = document.getElementById('consoleOut');
+
+    function insertar(texto) {
+      const start = inputFx.selectionStart;
+      const end = inputFx.selectionEnd;
+      const currentVal = inputFx.value;
+      inputFx.value = currentVal.substring(0, start) + texto + currentVal.substring(end);
+      inputFx.focus();
+      if(texto.includes('()')) {
+        inputFx.selectionStart = inputFx.selectionEnd = start + texto.length - 1;
+      } else {
+        inputFx.selectionStart = inputFx.selectionEnd = start + texto.length;
+      }
+    }
+
+    // --- NUEVO MÓDULO HEURÍSTICO DE PASOS ---
+    function generarPasos(funcStr, latexFinal) {
+      let pasosHTML = `<div style="margin-top: 20px; padding: 15px; border-top: 1px solid var(--neon-purple); text-align: left;">`;
+      pasosHTML += `<h4 style="color: var(--neon-blue); margin-bottom: 10px;">PROCEDIMIENTO (Análisis Heurístico)</h4>`;
+
+      try {
+        const nodoRaiz = math.parse(funcStr);
+        
+        // REGLA DEL COCIENTE (Ej: sen(5x) / cos(6x))
+        if (nodoRaiz.type === 'OperatorNode' && nodoRaiz.op === '/') {
+          let u = nodoRaiz.args[0].toString();
+          let v = nodoRaiz.args[1].toString();
+          
+          let uTex = math.parse(u).toTex().replace(/\\sin/g, '\\operatorname{sen}');
+          let vTex = math.parse(v).toTex().replace(/\\sin/g, '\\operatorname{sen}');
+          
+          let duTex = math.simplify(math.derivative(u, 'x')).toTex().replace(/\\sin/g, '\\operatorname{sen}');
+          let dvTex = math.simplify(math.derivative(v, 'x')).toTex().replace(/\\sin/g, '\\operatorname{sen}');
+
+          pasosHTML += `<p><strong>1. Identificar Regla:</strong> Se detectó una división. Aplicando la Regla del Cociente:</p>`;
+          pasosHTML += `<div id="paso1" style="margin: 10px 0;"></div>`; // Aquí inyectaremos KaTeX
+          
+          pasosHTML += `<p><strong>2. Derivar partes:</strong></p>`;
+          pasosHTML += `<ul>`;
+          pasosHTML += `<li>Numerador (u) = <span id="paso_u"></span> &#10142; u' = <span id="paso_du"></span></li>`;
+          pasosHTML += `<li>Denominador (v) = <span id="paso_v"></span> &#10142; v' = <span id="paso_dv"></span></li>`;
+          pasosHTML += `</ul>`;
+
+          pasosHTML += `<p><strong>3. Sustituir y Simplificar (Resultado Final):</strong></p>`;
+          pasosHTML += `<div id="pasoFinal" style="margin: 10px 0;"></div>`;
+          pasosHTML += `</div>`;
+          
+          // Retornamos el HTML y los datos para renderizar KaTeX después de insertarlo
+          return {
+            html: pasosHTML,
+            tipo: 'cociente',
+            datos: { uTex, vTex, duTex, dvTex, latexFinal }
+          };
+        } 
+        // REGLA DEL PRODUCTO (Ej: x^3 * cos(x))
+        else if (nodoRaiz.type === 'OperatorNode' && nodoRaiz.op === '*') {
+          let u = nodoRaiz.args[0].toString();
+          let v = nodoRaiz.args[1].toString();
+          
+          let duTex = math.simplify(math.derivative(u, 'x')).toTex().replace(/\\sin/g, '\\operatorname{sen}');
+          let dvTex = math.simplify(math.derivative(v, 'x')).toTex().replace(/\\sin/g, '\\operatorname{sen}');
+
+          pasosHTML += `<p><strong>1. Identificar Regla:</strong> Se detectó una multiplicación. Aplicando la Regla del Producto:</p>`;
+          pasosHTML += `<div id="paso1" style="margin: 10px 0;"></div>`;
+          pasosHTML += `<p><strong>2. Derivar partes por separado y sumar:</strong></p>`;
+          pasosHTML += `<div id="pasoFinal" style="margin: 10px 0;"></div>`;
+          pasosHTML += `</div>`;
+          
+          return { html: pasosHTML, tipo: 'producto', datos: { latexFinal } };
+        }
+        // REGLA GENERAL / CADENA
+        else {
+          pasosHTML += `<p><strong>1. Identificar Regla:</strong> Aplicando reglas de derivación estándar y Regla de la Cadena.</p>`;
+          pasosHTML += `<div id="pasoFinal" style="margin: 10px 0;"></div>`;
+          pasosHTML += `</div>`;
+          return { html: pasosHTML, tipo: 'general', datos: { latexFinal } };
+        }
+      } catch (e) {
+        return { html: "", tipo: 'error', datos: null };
+      }
+    }
+
+  btnCalc.addEventListener("click", async () => {
+      let rawFunc = inputFx.value.trim();
+
+      if (rawFunc === "") {
+        outResult.innerHTML = "<span class='error'>Error: Entrada vacía</span>";
+        consoleOut.textContent = "> ERROR: No se detectó ninguna función.";
+        return;
+      }
+
+      let logs = [];
+      logs.push("> CONECTANDO CON EL MOTOR SUPREMO (PYTHON + SYMPY)...");
+      consoleOut.textContent = logs.join("\n");
+
+      try {
+        // Petición directa a tu servidor Flask activo
+        const respuesta = await fetch('http://localhost:5000/derivar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ funcion: rawFunc })
+        });
+
+        const resultado = await respuesta.json();
+
+        if (resultado.status === 'success') {
+          logs.push(`> ${resultado.mensaje}`);
+          consoleOut.textContent = logs.join("\n");
+
+          // Renderizar el resultado factorizado que calculó SymPy
+          outResult.innerHTML = ""; 
+          const formulaDiv = document.createElement("div");
+          katex.render("f'(x) = " + resultado.derivada_latex, formulaDiv, { throwOnError: false, displayMode: true });
+          outResult.appendChild(formulaDiv);
+        } else {
+          outResult.innerHTML = `<span class='error'>Error: ${resultado.mensaje}</span>`;
+          logs.push(`> ALERTA BACKEND: ${resultado.mensaje}`);
+          consoleOut.textContent = logs.join("\n");
+        }
+      } catch (err) {
+        outResult.innerHTML = "<span class='error'>Error de conexión. ¿Corriste el servidor?</span>";
+        logs.push(`> ERROR DE RED: No se pudo conectar con app.py`);
+        consoleOut.textContent = logs.join("\n");
+      }
+    });
+    
+    btnClear.addEventListener("click", () => {
+      inputFx.value = "";
+      outResult.innerHTML = "<span style=\"font-family: 'Orbitron', sans-serif; font-size: 16px;\">[ Esperando ecuación... ]</span>";
+      consoleOut.textContent = "> Memoria purgada. Sistema listo para nuevas derivaciones.";
+    });
+  </script>
+ 
+</body>
+</html>
