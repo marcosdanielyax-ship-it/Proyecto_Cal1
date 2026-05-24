@@ -16,6 +16,9 @@ def limpiar_sintaxis(expr_str):
     # Convierte el símbolo ^ en ** (potencia en Python) por seguridad
     expr_str = expr_str.replace('^', '**')
     return expr_str
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 @app.route('/derivar', methods=['POST'])
 def derivar_funcion():
