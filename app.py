@@ -1,11 +1,8 @@
 from flask import Flask, request, jsonify, render_template
-from flask_cors import # CORS(app)
 import sympy as sp
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor
 
 app = Flask(__name__)
-# CORS permite que tu interfaz HTML local se comunique con este servidor sin restricciones
-CORS(app)
 
 def limpiar_sintaxis(expr_str):
     """Ajusta la entrada del usuario para que el motor de Python la entienda."""
@@ -16,6 +13,7 @@ def limpiar_sintaxis(expr_str):
     # Convierte el símbolo ^ en ** (potencia en Python) por seguridad
     expr_str = expr_str.replace('^', '**')
     return expr_str
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -40,7 +38,7 @@ def derivar_funcion():
         # Parsea la string de texto a una expresión matemática real de SymPy
         expresion = parse_expr(entrada_limpia, transformations=transformaciones)
         
-       # 1. CÁLCULO: Aplicamos la derivada respecto a x
+        # 1. CÁLCULO: Aplicamos la derivada respecto a x
         derivada_cruda = sp.diff(expresion, x)
         
         # 2. ÁLGEBRA ESTILO CUADERNO: Solo factorizamos términos comunes, sin alterar las funciones trigonométricas
