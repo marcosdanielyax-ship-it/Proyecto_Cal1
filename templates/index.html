@@ -355,74 +355,7 @@
       }
     }
 
-    // --- NUEVO MÓDULO HEURÍSTICO DE PASOS ---
-    function generarPasos(funcStr, latexFinal) {
-      let pasosHTML = `<div style="margin-top: 20px; padding: 15px; border-top: 1px solid var(--neon-purple); text-align: left;">`;
-      pasosHTML += `<h4 style="color: var(--neon-blue); margin-bottom: 10px;">PROCEDIMIENTO (Análisis Heurístico)</h4>`;
-
-      try {
-        const nodoRaiz = math.parse(funcStr);
-        
-        // REGLA DEL COCIENTE (Ej: sen(5x) / cos(6x))
-        if (nodoRaiz.type === 'OperatorNode' && nodoRaiz.op === '/') {
-          let u = nodoRaiz.args[0].toString();
-          let v = nodoRaiz.args[1].toString();
-          
-          let uTex = math.parse(u).toTex().replace(/\\sin/g, '\\operatorname{sen}');
-          let vTex = math.parse(v).toTex().replace(/\\sin/g, '\\operatorname{sen}');
-          
-          let duTex = math.simplify(math.derivative(u, 'x')).toTex().replace(/\\sin/g, '\\operatorname{sen}');
-          let dvTex = math.simplify(math.derivative(v, 'x')).toTex().replace(/\\sin/g, '\\operatorname{sen}');
-
-          pasosHTML += `<p><strong>1. Identificar Regla:</strong> Se detectó una división. Aplicando la Regla del Cociente:</p>`;
-          pasosHTML += `<div id="paso1" style="margin: 10px 0;"></div>`; // Aquí inyectaremos KaTeX
-          
-          pasosHTML += `<p><strong>2. Derivar partes:</strong></p>`;
-          pasosHTML += `<ul>`;
-          pasosHTML += `<li>Numerador (u) = <span id="paso_u"></span> &#10142; u' = <span id="paso_du"></span></li>`;
-          pasosHTML += `<li>Denominador (v) = <span id="paso_v"></span> &#10142; v' = <span id="paso_dv"></span></li>`;
-          pasosHTML += `</ul>`;
-
-          pasosHTML += `<p><strong>3. Sustituir y Simplificar (Resultado Final):</strong></p>`;
-          pasosHTML += `<div id="pasoFinal" style="margin: 10px 0;"></div>`;
-          pasosHTML += `</div>`;
-          
-          // Retornamos el HTML y los datos para renderizar KaTeX después de insertarlo
-          return {
-            html: pasosHTML,
-            tipo: 'cociente',
-            datos: { uTex, vTex, duTex, dvTex, latexFinal }
-          };
-        } 
-        // REGLA DEL PRODUCTO (Ej: x^3 * cos(x))
-        else if (nodoRaiz.type === 'OperatorNode' && nodoRaiz.op === '*') {
-          let u = nodoRaiz.args[0].toString();
-          let v = nodoRaiz.args[1].toString();
-          
-          let duTex = math.simplify(math.derivative(u, 'x')).toTex().replace(/\\sin/g, '\\operatorname{sen}');
-          let dvTex = math.simplify(math.derivative(v, 'x')).toTex().replace(/\\sin/g, '\\operatorname{sen}');
-
-          pasosHTML += `<p><strong>1. Identificar Regla:</strong> Se detectó una multiplicación. Aplicando la Regla del Producto:</p>`;
-          pasosHTML += `<div id="paso1" style="margin: 10px 0;"></div>`;
-          pasosHTML += `<p><strong>2. Derivar partes por separado y sumar:</strong></p>`;
-          pasosHTML += `<div id="pasoFinal" style="margin: 10px 0;"></div>`;
-          pasosHTML += `</div>`;
-          
-          return { html: pasosHTML, tipo: 'producto', datos: { latexFinal } };
-        }
-        // REGLA GENERAL / CADENA
-        else {
-          pasosHTML += `<p><strong>1. Identificar Regla:</strong> Aplicando reglas de derivación estándar y Regla de la Cadena.</p>`;
-          pasosHTML += `<div id="pasoFinal" style="margin: 10px 0;"></div>`;
-          pasosHTML += `</div>`;
-          return { html: pasosHTML, tipo: 'general', datos: { latexFinal } };
-        }
-      } catch (e) {
-        return { html: "", tipo: 'error', datos: null };
-      }
-    }
-
-  btnCalc.addEventListener("click", async () => {
+    btnCalc.addEventListener("click", async () => {
       let rawFunc = inputFx.value.trim();
 
       if (rawFunc === "") {
@@ -436,8 +369,8 @@
       consoleOut.textContent = logs.join("\n");
 
       try {
-        // Petición directa a tu servidor Flask activo
-        const respuesta = await fetch('http://localhost:5000/derivar', {
+        // Petición directa a tu servidor web activo en Render
+        const respuesta = await fetch('https://proyecto-cal1.onrender.com/derivar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ funcion: rawFunc })
@@ -460,8 +393,8 @@
           consoleOut.textContent = logs.join("\n");
         }
       } catch (err) {
-        outResult.innerHTML = "<span class='error'>Error de conexión. ¿Corriste el servidor?</span>";
-        logs.push(`> ERROR DE RED: No se pudo conectar con app.py`);
+        outResult.innerHTML = "<span class='error'>Error de conexión. Fallo en el servidor de Render.</span>";
+        logs.push(`> ERROR DE RED: No se pudo conectar con el servidor en la nube.`);
         consoleOut.textContent = logs.join("\n");
       }
     });
@@ -472,6 +405,5 @@
       consoleOut.textContent = "> Memoria purgada. Sistema listo para nuevas derivaciones.";
     });
   </script>
- 
 </body>
 </html>
